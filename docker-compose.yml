@@ -1,0 +1,16 @@
+---
+version: '2'
+services:
+  rails-new-benchmark:
+    container_name: rails-new-benchmark
+    build:
+      context: docker
+      args:
+        uid: ${uid}
+        user: ${USER}
+    working_dir: "/work"
+    volumes:
+    - "./:/repo"
+    - "./volumes/home:${HOME}"
+    - "./volumes/work:/work"
+    - "${RUBYDIR}:/ruby"
