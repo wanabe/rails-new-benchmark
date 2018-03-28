@@ -1,14 +1,31 @@
 require 'derailed_benchmarks/tasks'
 require 'benchmark_driver'
+require 'json'
 
-def bench(sizes)
+module BenchmarkDriver
+  class RubyInterface
+    attr_reader :config
+  end
 end
 
 task 'bench' => %w(perf:setup) do
   Benchmark.driver do |x|
-    jit_opt = "--jit,--jit-min-calls=1"
-    jit_opt << ",#{ENV["JITOPT"].gsub(" ", ",")}" if ENV["JITOPT"]
-    x.rbenv *ENV["SIZES"].split(" ").map {|n| "system,#{jit_opt},--jit-max-cache=#{n}" }
+    "#{ENV["BENCH_CONFIG"]}".scan(/([^,= ]*)=([^,= ]*)/) do |k, v|
+      x.config[k] = JSON.parse(v)
+    end
+    if ENV["SIZES"]
+      jit_opts = "max-cache=#{}"
+    else
+      jit_opts = ENV["JIT_OPTS"] || ""
+    end
+    rbenv_opts = jit_opts.split(" ").map do |opt|
+      -"system".tap do |rbenv_opt|
+        if opt != "none"
+          rbenv_opt << ",--jit," << opt.split(",").map {|o| "--jit-#{o}" }.join(",")
+        end
+      end
+    end
+    x.rbenv *rbenv_opts
     x.prelude <<~'RUBY'
       ENV['SECRET_KEY_BASE'] = "test"
       require './config/boot'
