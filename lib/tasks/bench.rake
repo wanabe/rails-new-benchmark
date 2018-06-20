@@ -67,6 +67,7 @@ task 'bench' => %w(perf:setup) do
       ENV["RAILS_ENV"] = "production"
       ENV['SECRET_KEY_BASE'] = "test"
 
+      require 'rubygems'
       require './config/boot'
       require 'rake'
       require 'bundler/setup'
@@ -80,6 +81,36 @@ task 'bench' => %w(perf:setup) do
         response
       end
 
+      verbose = ENV["V"] == "1"
+      training_num = ENV["TRAINING_NUM"]&.to_i
+      if training_num
+        c = training_num
+        while c > 0
+          c -= 1
+          call_app
+          STDERR.printf "%5d\r", c if verbose && c % 100 == 0
+        end
+        STDERR.puts if verbose
+      end
+
+      wait_sec = ENV["WAIT_SEC"]&.to_i
+      if wait_sec
+        c = wait_sec
+        while c > 0
+          c -= 1
+          sleep 1
+          STDERR.printf "%5d\r", c if verbose
+        end
+        STDERR.puts if verbose
+        RubyVM::MJIT.pause if RubyVM::MJIT.respond_to?(:pause)
+        RubyVM::MJIT.stop if RubyVM::MJIT.respond_to?(:stop)
+        sleep 3
+      end
+
+      if ENV["INTERACTIVE"] == "1"
+        STDERR.puts "ready?"
+        STDIN.gets
+      end
       GC.start
       GC.disable
     RUBY
