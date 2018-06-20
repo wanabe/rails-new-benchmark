@@ -84,6 +84,11 @@ task 'bench' => %w(perf:setup) do
       GC.disable
     RUBY
 
+    if ENV["STACKPROF"] == "1"
+      x.prelude "\nStackProf.start(mode: :cpu, out: 'tmp/stackprof-cpu-myapp.dump')\n"
+      x.teardown "\nStackProf.stop\n"
+    end
+
     x.report 'bench', %{ call_app }
   end
 end
