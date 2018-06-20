@@ -1,3 +1,4 @@
+ENV["RAILS_ENV"] = "production"
 require 'derailed_benchmarks/tasks'
 require 'benchmark_driver'
 require 'json'
@@ -63,13 +64,16 @@ task 'bench' => %w(perf:setup) do
     x.rbenv_with_env *((ENV["RBENV"] || "system").split(" "))
     x.run_duration (ENV["DURATION"] || 5).to_i
     x.prelude <<~'RUBY'
+      ENV["RAILS_ENV"] = "production"
       ENV['SECRET_KEY_BASE'] = "test"
+
       require './config/boot'
       require 'rake'
       require 'bundler/setup'
       require './config/environment'
 
       @app = Rack::MockRequest.new(Rails.application)
+
       def call_app
         response = @app.get("/", {})
         raise "Bad request: #{ response.body }" unless response.status == 200
