@@ -103,7 +103,6 @@ task 'bench' => %w(perf:setup) do
         end
         STDERR.puts if verbose
         RubyVM::MJIT.pause if RubyVM::MJIT.respond_to?(:pause)
-        RubyVM::MJIT.stop if RubyVM::MJIT.respond_to?(:stop)
         sleep 3
       end
 
