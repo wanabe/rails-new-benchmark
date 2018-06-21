@@ -111,7 +111,6 @@ task 'bench' => %w(perf:setup) do
         STDIN.gets
       end
       GC.start
-      GC.disable
     RUBY
 
     if ENV["STACKPROF"] == "1"
