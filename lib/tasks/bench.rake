@@ -38,9 +38,6 @@ $bench_prelude = <<~'RUBY'
     end
     STDERR.puts if verbose
     if RubyVM::MJIT.enabled?
-      STDERR.puts "wait"
-      RubyVM::MJIT.wait if RubyVM::MJIT.respond_to?(:wait)
-      sleep 3
       STDERR.puts "pause"
       RubyVM::MJIT.pause if RubyVM::MJIT.respond_to?(:pause)
     end
