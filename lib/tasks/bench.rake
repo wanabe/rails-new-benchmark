@@ -44,6 +44,11 @@ $bench_prelude = <<~'RUBY'
     sleep 3
   end
 
+  if ENV["PERF_STAT"]
+    $pid = Process.spawn("perf stat -e #{ENV["PERF_STAT"]} -p #{$$}")
+    at_exit { Process.kill :INT, $pid }
+  end
+
   if ENV["INTERACTIVE"] == "1"
     STDERR.puts "ready? #{$$} #{__FILE__}"
     STDIN.gets
