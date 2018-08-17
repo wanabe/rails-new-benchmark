@@ -118,10 +118,6 @@ task 'bench' => %w(perf:setup) do
     x.run_duration (ENV["DURATION"] || 5).to_i
     x.prelude $bench_prelude
 
-    #if ENV["STACKPROF"] == "1"
-    #x.prelude "\nStackProf.start(mode: :cpu, out:  '#{__dir__ }/../../tmp/stackprof-cpu-myapp.dump')\nat_exit { StackProf.stop }\n"
-    #end
-
     x.report 'bench', %{ call_app }
   end
 end
