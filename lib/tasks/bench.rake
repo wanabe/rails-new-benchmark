@@ -30,18 +30,25 @@ $bench_prelude = <<~'RUBY'
 
   wait_sec = ENV["WAIT_SEC"]&.to_i
   if wait_sec
-    c = wait_sec
-    while c > 0
-      c -= 1
-      sleep 1
-      STDERR.printf "%5d\r", c if verbose
+    r, w = IO.pipe
+    $stderr = orig_stderr = $stderr.dup
+    begin
+      STDERR.reopen(w)
+      begin
+        while IO.select([r], nil, nil, wait_sec)
+          $stderr.puts r.gets
+        end
+      ensure
+        STDERR.reopen(orig_stderr)
+      end
+    ensure
+      $stderr = STDERR
     end
     STDERR.puts if verbose
     if RubyVM::MJIT.enabled?
       STDERR.puts "pause"
       RubyVM::MJIT.pause if RubyVM::MJIT.respond_to?(:pause)
     end
-    sleep 3
   end
 
   if ENV["PERF_STAT"]
