@@ -20,3 +20,8 @@ def call_app
 end
 
 # Sandbox to overwrite the methods
+
+begin
+  require Rails.root.join("override.rb").to_s
+rescue LoadError
+end

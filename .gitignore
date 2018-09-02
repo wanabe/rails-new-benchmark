@@ -22,3 +22,7 @@
 
 .byebug_history
 /volumes
+
+*.png
+*.log
+/override.rb
